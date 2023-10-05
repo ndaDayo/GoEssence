@@ -12,7 +12,7 @@ type Entry struct {
 	Author   string
 	TitleID  string
 	Title    string
-	InfoURL  string
+	SiteURL  string
 	ZipURL   string
 }
 
@@ -22,11 +22,15 @@ func findEntires(siteURL string) ([]Entry, error) {
 		return nil, err
 	}
 
+	doc.Find("ol li a").Each(func(n int, elem *goquery.Selection) {
+		println(elem.Text(), elem.AttrOr("href", ""))
+	})
+
 	return nil, nil
 }
 
 func main() {
-	listURL = "https://www.aozora.gr.jp/index_pages/person879.html"
+	listURL := "https://www.aozora.gr.jp/index_pages/person879.html"
 
 	entries, err := findEntires(listURL)
 	if err != nil {
