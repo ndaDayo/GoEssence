@@ -1,0 +1,12 @@
+github.com/ikawaha/kagome v1.11.2 h1:eCWpLqv5Euqa5JcwkaobUSy6uGM8rwwMw5Su3eRepBI=
+github.com/ikawaha/kagome v1.11.2/go.mod h1:lHwhkGuuWqKWTxeQMppD0EmQAfKbc39QKx9qoWqgo+A=
+github.com/ikawaha/kagome-dict v1.0.9 h1:1Gg735LbBYsdFu13fdTvW6eVt0qIf5+S2qXGJtlG8C0=
+github.com/ikawaha/kagome-dict v1.0.9/go.mod h1:mn9itZLkFb6Ixko7q8eZmUabHbg3i9EYewnhOtvd2RM=
+github.com/ikawaha/kagome-dict/ipa v1.0.10 h1:wk9I21yg+fKdL6HJB9WgGiyXIiu1VttumJwmIRwn0g8=
+github.com/ikawaha/kagome-dict/ipa v1.0.10/go.mod h1:rbaOKrF58zhtpV2+2sVZBj0sUSp9dVKPjr660MehJbs=
+github.com/ikawaha/kagome/v2 v2.9.4 h1:8TgrcS47+nVCIOyQJRE33+VAqQrdKIGuZ8QI9sHz95E=
+github.com/ikawaha/kagome/v2 v2.9.4/go.mod h1:OYzxPG9dQSalvznlcLNR8TEKpPwzKhnZszw9LLbf7e8=
+github.com/mattn/go-sqlite3 v1.14.17 h1:mCRHCLDUBXgpKAqIKsaAaAsrAlbkeomtRFKXh2L6YIM=
+github.com/mattn/go-sqlite3 v1.14.17/go.mod h1:2eHXhiwb8IkHr+BDWZGa96P6+rkvnG63S2DGjv9HUNg=
+golang.org/x/text v0.13.0 h1:ablQoSUd0tRdKxZewP80B+BaqeKJuVhuRxj/dkrun3k=
+golang.org/x/text v0.13.0/go.mod h1:TvPlkZtksWOMsz7fbANvkp4WM8x/WCo/om8BMLbz+aE=
