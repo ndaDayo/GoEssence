@@ -3,7 +3,8 @@ package main
 import (
 	"archive/zip"
 	"bytes"
-	"database/sql"
+	"cli_db/domain"
+	"cli_db/repository"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -15,23 +16,12 @@ import (
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/ikawaha/kagome-dict/ipa"
-	"github.com/ikawaha/kagome/v2/tokenizer"
 	_ "github.com/mattn/go-sqlite3"
 	"golang.org/x/text/encoding/japanese"
 )
 
-type Entry struct {
-	AuthorID string
-	Author   string
-	TitleID  string
-	Title    string
-	SiteURL  string
-	ZipURL   string
-}
-
 func main() {
-	db, err := setupDB("database.sqlite")
+	db, err := repository.SetupDB("database.sqlite")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -54,7 +44,7 @@ func main() {
 			continue
 		}
 
-		err = addEntry(db, &entry, content)
+		err = repository.AddEntry(db, &entry, content)
 		if err != nil {
 			log.Println(err)
 			continue
@@ -62,13 +52,13 @@ func main() {
 	}
 }
 
-func findEntires(siteURL string) ([]Entry, error) {
+func findEntires(siteURL string) ([]domain.Entry, error) {
 	doc, err := goquery.NewDocument(siteURL)
 	if err != nil {
 		return nil, err
 	}
 	pat := regexp.MustCompile(`.*/cards/([0-9]+)/card([0-9]+).html$`)
-	entries := []Entry{}
+	entries := []domain.Entry{}
 	doc.Find("ol li a").Each(func(n int, elem *goquery.Selection) {
 		token := pat.FindStringSubmatch(elem.AttrOr("href", ""))
 		if len(token) != 3 {
@@ -80,7 +70,7 @@ func findEntires(siteURL string) ([]Entry, error) {
 			token[1], token[2])
 		author, zipURL := findAuthorAndZIP(pageURL)
 		if zipURL != "" {
-			entries = append(entries, Entry{
+			entries = append(entries, domain.Entry{
 				AuthorID: token[1],
 				Author:   author,
 				TitleID:  token[2],
@@ -163,75 +153,4 @@ func extractText(zipURL string) (string, error) {
 	}
 
 	return "", errors.New("contents not found")
-}
-
-func setupDB(dsn string) (*sql.DB, error) {
-	db, err := sql.Open("sqlite3", "database.sqlite")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for _, query := range queries() {
-		_, err = db.Exec(query)
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
-
-	return db, nil
-
-}
-
-func queries() []string {
-	queries := []string{
-		`CREATE TABLE IF NOT EXISTS authors(author_id TEXT, author TEXT, PRIMARY KEY(author_id))`,
-		`CREATE TABLE IF NOT EXISTS contents(author_id TEXT, title_id TEXT, title TEXT, content TEXT, PRIMARY KEY(author_id, title_id))`,
-		`CREATE VIRTUAL TABLE IF NOT EXISTS contents_fts USING fts4(words)`,
-	}
-
-	return queries
-}
-
-func addEntry(db *sql.DB, entry *Entry, content string) error {
-	_, err := db.Exec(`
-        REPLACE INTO authors(author_id, author) values(?, ?)
-    `,
-		entry.AuthorID,
-		entry.Author,
-	)
-
-	if err != nil {
-		return err
-	}
-	res, err := db.Exec(`
-        REPLACE INTO contents(author_id, title_id, title, conten) values(?, ?, ?, ?)
-    `,
-		entry.AuthorID,
-		entry.TitleID,
-		entry.Title,
-		content,
-	)
-
-	if err != nil {
-		return err
-	}
-	docID, err := res.LastInsertId()
-	if err != nil {
-		return err
-	}
-	t, err := tokenizer.New(ipa.Dict(), tokenizer.OmitBosEos())
-	if err != nil {
-		return err
-	}
-	seg := t.Wakati(content)
-	_, err = db.Exec(
-		`REPLACE INTO contents_fts(docid, words) values (?, ?)`,
-		docID,
-		strings.Join(seg, " "),
-	)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
